@@ -4,6 +4,15 @@ orbs:
   node: circleci/node@3.0.0
   docker: circleci/docker@1.5.0
 jobs:
+  test:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          cache-path: ~/project/node_modules
+          override-ci-command: npm install
+      - run: npm run test
+
   build-and-push:
     environment:
       DOCKER_IMAGE: react-docker
@@ -23,17 +32,19 @@ jobs:
           image: $DOCKER_IMAGE
           tag: $DOCKER_TAG
       - run:
+          name: Install npm wee
+          command: npm install
+      - run:
           command: |
             echo "Digest is: $(</tmp/digest.txt)" 
-            npm install
 
 workflows:
   myPipeline:
     jobs:
-      - node/test
+      - test
       - build-and-push:
           requires:
-              - node/test
+              - test
           filters:            
             branches:
               only:
