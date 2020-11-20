@@ -25,6 +25,7 @@ jobs:
       - run:
           command: |
             echo "Digest is: $(</tmp/digest.txt)" 
+            yarn run gh-pages-deploy
 
 workflows:
   myPipeline:
