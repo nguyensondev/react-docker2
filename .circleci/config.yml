@@ -21,6 +21,9 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+          docker_layer_caching: true
       - docker/check:
           docker-username: DOCKER_USER
           docker-password: DOCKER_PASSWORD
@@ -36,9 +39,7 @@ jobs:
           command: npm install
       - run:
           command: |
-            echo "Digest is: $(</tmp/digest.txt)" 
-      - setup_remote_docker:
-          version: 19.03.13
+            echo "Digest is: $(</tmp/digest.txt)"      
 
 workflows:
   myPipeline:
