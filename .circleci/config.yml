@@ -1,0 +1,51 @@
+# abc
+version: 2.1
+orbs:
+  node: circleci/node@3.0.0
+  docker: circleci/docker@1.5.0
+jobs:
+  test:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          cache-path: ~/project/node_modules
+          override-ci-command: npm install
+      - run: npm run test
+
+  build-and-push:
+    environment:
+      DOCKER_IMAGE: react-docker
+      DOCKER_TAG: latest
+    executor: docker/docker
+    steps:
+      - setup_remote_docker
+      - checkout
+      - docker/check:
+          docker-username: DOCKER_USER
+          docker-password: DOCKER_PASSWORD
+      - docker/build:
+          image: $DOCKER_IMAGE
+          tag: $DOCKER_TAG
+      - docker/push:
+          digest-path: /tmp/digest.txt
+          image: $DOCKER_IMAGE
+          tag: $DOCKER_TAG
+      - run:
+          name: Install npm wee
+          command: npm install
+      - run:
+          command: |
+            echo "Digest is: $(</tmp/digest.txt)" 
+
+workflows:
+  myPipeline:
+    jobs:
+      - test
+      - build-and-push:
+          requires:
+              - test
+          filters:            
+            branches:
+              only:
+                - master
